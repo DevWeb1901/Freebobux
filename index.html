@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔬 RANSOMWARE SIMULATOR - LAB KEAMANAN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #0a0f0f 0%, #1a1f2f 100%);
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        /* HEADER DENGAN EFEK GLITCH */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        h1 {
+            color: #ff3b3b;
+            font-size: 3em;
+            text-shadow: 0 0 10px #ff0000, 0 0 20px #ff0000, 2px 2px 0 #00ff00;
+            animation: glitch 3s infinite;
+            letter-spacing: 5px;
+        }
+        
+        @keyframes glitch {
+            0%, 100% { transform: skew(0deg, 0deg); opacity: 1; }
+            95% { transform: skew(0deg, 0deg); opacity: 1; }
+            96% { transform: skew(10deg, 2deg); opacity: 0.8; }
+            97% { transform: skew(-10deg, -2deg); opacity: 0.9; }
+            98% { transform: skew(5deg, 1deg); opacity: 0.8; }
+        }
+        
+        .warning-badge {
+            background: #ff0000;
+            color: white;
+            padding: 10px 20px;
+            display: inline-block;
+            border-radius: 50px;
+            font-weight: bold;
+            margin: 15px 0;
+            animation: pulse 2s infinite;
+            border: 2px solid #ffff00;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px #ff0000; }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px #ff0000; }
+        }
+        
+        /* GRID SYSTEM */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* CARD STYLING */
+        .card {
+            background: rgba(0, 20, 20, 0.9);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
+            backdrop-filter: blur(5px);
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.5);
+            border-color: #ff0000;
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #00ff00;
+            padding-bottom: 15px;
+        }
+        
+        .card-header h2 {
+            color: #00ff00;
+            font-size: 1.5em;
+            flex-grow: 1;
+        }
+        
+        .card-header .icon {
+            font-size: 2em;
+        }
+        
+        /* FILE SYSTEM SIMULATOR */
+        .file-system {
+            background: #000000;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-size: 0.9em;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            margin: 5px 0;
+            background: #0a1a1a;
+            border-left: 3px solid #00ff00;
+            transition: all 0.2s;
+        }
+        
+        .file-item.encrypted {
+            border-left-color: #ff0000;
+            background: #2a0a0a;
+            color: #ff6666;
+            text-decoration: line-through;
+        }
+        
+        .file-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+        
+        .file-name {
+            flex-grow: 1;
+        }
+        
+        .file-size {
+            color: #666;
+            font-size: 0.8em;
+        }
+        
+        /* ENCRYPTION ANIMATION */
+        .encrypt-progress {
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #1a1a1a;
+            border-radius: 15px;
+            overflow: hidden;
+            border: 1px solid #00ff00;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #ff0000);
+            width: 0%;
+            transition: width 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* BUTTONS */
+        .btn {
+            background: transparent;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            padding: 12px 25px;
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 8px;
+            margin: 5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn:hover {
+            background: #00ff00;
+            color: black;
+            box-shadow: 0 0 20px #00ff00;
+        }
+        
+        .btn-danger {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        
+        .btn-danger:hover {
+            background: #ff0000;
+            color: white;
+            box-shadow: 0 0 20px #ff0000;
+        }
+        
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        /* RANSOM NOTE */
+        .ransom-note {
+            background: #1a0a0a;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+            padding: 20px;
+            color: #ff6666;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            margin: 20px 0;
+            position: relative;
+            animation: flicker 2s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.9; }
+        }
+        
+        .blink {
+            animation: blink 1s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        
+        /* TERMINAL OUTPUT */
+        .terminal {
+            background: #000;
+            border-radius: 10px;
+            padding: 15px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            height: 200px;
+            overflow-y: auto;
+            border: 1px solid #00ff00;
+            margin-top: 20px;
+        }
+        
+        .terminal-line {
+            margin: 5px 0;
+            border-bottom: 1px solid #0a2a0a;
+            padding-bottom: 5px;
+        }
+        
+        .timestamp {
+            color: #666;
+            margin-right: 10px;
+        }
+        
+        /* KEY DISPLAY */
+        .key-display {
+            background: #000;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            word-break: break-all;
+            border: 1px dashed #00ff00;
+            margin: 10px 0;
+        }
+        
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <div class="header">
+            <h1>🔴 RANSOMWARE LAB</h1>
+            <div class="warning-badge">⚠️ SIMULASI EDUKASI - 100% AMAN ⚠️</div>
+            <p style="color: #00ff00; margin-top: 10px;">cvAI4 Security Research Tool • Hanya untuk pembelajaran</p>
+        </div>
+        
+        <!-- MAIN GRID -->
+        <div class="grid-2">
+            <!-- FILE EXPLORER CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">📁</span>
+                    <h2>FILE EXPLORER (SIMULASI)</h2>
+                </div>
+                
+                <div class="file-system" id="fileExplorer">
+                    <!-- FILES WILL BE POPULATED BY JS -->
+                </div>
+                
+                <div style="margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" onclick="scanFiles()">🔍 SCAN TARGET</button>
+                    <button class="btn" onclick="createDummyFiles()">📄 BUAT FILE DUMMY</button>
+                    <button class="btn" onclick="resetSystem()">🔄 RESET</button>
+                </div>
+            </div>
+            
+            <!-- CONTROL PANEL CARD -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="icon">🎮</span>
+                    <h2>CONTROL PANEL</h2>
+                </div>
+                
+                <!-- ENCRYPTION PROGRESS -->
+                <div class="encrypt-progress" id="encryptProgress">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px; color: #00ff00;">
+                        <span>⚡ ENCRYPTING FILES...</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                
+                <!-- ACTION BUTTONS -->
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button class="btn btn-danger" onclick="simulateRansomware()" id="attackBtn">💀 SIMULATE ATTACK</button>
+                    <button class="btn" onclick="decryptFiles()" id="decryptBtn" disabled>🔓 DECRYPT FILES</button>
+                </div>
+                
+                <!-- RANSOM NOTE (HIDDEN BY DEFAULT) -->
+                <div id="ransomNoteContainer" style="display: none;">
+                    <div class="ransom-note" id="ransomNote"></div>
+                    
+                    <!-- PAYMENT INFO (FAKE) -->
+                    <div style="background: #0a1a1a; padding: 15px; border-radius: 8px; margin-top: 10px;">
+                        <p style="color: #ff6666;">💰 <span class="blink">PAYMENT REQUIRED (SIMULATION)</span></p>
+                        <div class="key-display" id="walletAddress">4FerpFSSqhQQ1S4ZuuRCxmUvzPS7G77F1G81AtNmNZyH</div>
+                        <p style="color: #666; font-size: 0.8em; margin-top: 5px;">*Hanya simulasi - JANGAN BAYAR*</p>
+                    </div>
+                </div>
+                
+                <!-- DECRYPTION KEY (HIDDEN BY DEFAULT) -->
+                <div id="decryptKeyContainer" style="display: none; margin-top: 15px;">
+                    <p style="color: #00ff00;">🔑 ENKRIPSI KEY (SIMPAN INI):</p>
+                    <div class="key-display" id="encryptionKey"></div>
+                    <p style="color: #ff6666; font-size: 0.8em;">⚠️ Di ransomware asli, lo GA bakal punya ini!</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TERMINAL LOG -->
+        <div class="card" style="margin-top: 25px;">
+            <div class="card-header">
+                <span class="icon">💻</span>
+                <h2>TERMINAL LOG</h2>
+            </div>
+            
+            <div class="terminal" id="terminal">
+                <div class="terminal-line">
+                    <span class="timestamp">[SYSTEM]</span> Ransomware simulator siap - Mode Edukasi Aktif
+                </div>
+                <div class="terminal-line">
+                    <span class="timestamp">[SYSTEM]</span> Peringatan: SEMUA FILE 100% AMAN, cuma simulasi JavaScript
+                </div>
+            </div>
+        </div>
+        
+        <!-- STATS -->
+        <div style="display: flex; justify-content: space-between; color: #666; margin-top: 15px;">
+            <span>📊 Total Files: <span id="totalFiles">0</span></span>
+            <span>🔴 Encrypted: <span id="encryptedFiles">0</span></span>
+            <span>🟢 Safe: <span id="safeFiles">0</span></span>
+        </div>
+        
+        <!-- FOOTER -->
+        <div class="footer">
+            <p>cvAI4 Security Lab • HANYA UNTUK EDUKASI • Jangan pake buat serangan beneran! • © 2026</p>
+        </div>
+    </div>
+    
+    <script>
+        // ==================== DATA SIMULASI ====================
+        let files = [];
+        let encryptionKey = null;
+        let isEncrypted = false;
+        
+        // File extensions yang umum
+        const extensions = ['.txt', '.jpg', '.png', '.docx', '.xlsx', '.pdf', '.mp4', '.zip'];
+        const fileNames = [
+            'project_riset', 'data_karyawan', 'foto_liburan', 'laporan_keuangan',
+            'backup_database', 'skripsi_bab3', 'password.txt', 'client_list',
+            'cctv_footage', 'private_key', 'crypto_wallet', 'passport_scan'
+        ];
+        
+        // ==================== INITIALIZATION ====================
+        function initFiles() {
+            files = [];
+            for (let i = 0; i < 12; i++) {
+                const ext = extensions[Math.floor(Math.random() * extensions.length)];
+                const name = fileNames[Math.floor(Math.random() * fileNames.length)];
+                files.push({
+                    id: i,
+                    name: `${name}${ext}`,
+                    size: Math.floor(Math.random() * 5000) + 100, // KB
+                    encrypted: false,
+                    icon: getFileIcon(ext)
+                });
+            }
+            updateFileExplorer();
+            updateStats();
+            logMessage('SYSTEM', 'Filesystem simulator diinisialisasi');
+        }
+        
+        function getFileIcon(ext) {
+            const icons = {
+                '.txt': '📝', '.jpg': '🖼️', '.png': '🖼️', '.docx': '📄',
+                '.xlsx': '📊', '.pdf': '📑', '.mp4': '🎥', '.zip': '🗜️'
+            };
+            return icons[ext] || '📁';
+        }
+        
+        // ==================== UI UPDATES ====================
+        function updateFileExplorer() {
+            const explorer = document.getElementById('fileExplorer');
+            explorer.innerHTML = '';
+            
+            files.forEach(file => {
+                const fileElement = document.createElement('div');
+                fileElement.className = `file-item ${file.encrypted ? 'encrypted' : ''}`;
+                fileElement.innerHTML = `
+                    <span class="file-icon">${file.icon}</span>
+                    <span class="file-name">${file.name}</span>
+                    <span class="file-size">${file.size} KB</span>
+                `;
+                explorer.appendChild(fileElement);
+            });
+        }
+        
+        function updateStats() {
+            const total = files.length;
+            const encrypted = files.filter(f => f.encrypted).length;
+            const safe = total - encrypted;
+            
+            document.getElementById('totalFiles').innerText = total;
+            document.getElementById('encryptedFiles').innerText = encrypted;
+            document.getElementById('safeFiles').innerText = safe;
+            
+            // Update decrypt button status
+            const decryptBtn = document.getElementById('decryptBtn');
+            if (encrypted > 0) {
+                decryptBtn.disabled = false;
+            } else {
+                decryptBtn.disabled = true;
+            }
+        }
+        
+        function logMessage(type, message) {
+            const terminal = document.getElementById('terminal');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.innerHTML = `<span class="timestamp">[${timestamp}]</span> [${type}] ${message}`;
+            
+            terminal.appendChild(line);
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+        
+        // ==================== CORE FUNCTIONS ====================
+        function scanFiles() {
+            const total = files.length;
+            const encrypted = files.filter(f => f.encrypted).length;
+            logMessage('SCAN', `Ditemukan ${total} total file (${encrypted} terenkripsi, ${total-encrypted} aman)`);
+        }
+        
+        function createDummyFiles() {
+            // Tambah 3 file dummy baru
+            for (let i = 0; i < 3; i++) {
+                const ext = extensions[Math.floor(Math.random() * extensions.length)];
+                const name = `dummy_${Math.random().toString(36).substring(7)}${ext}`;
+                files.push({
+                    id: files.length,
+                    name: name,
+                    size: Math.floor(Math.random() * 1000) + 50,
+                    encrypted: false,
+                    icon: getFileIcon(ext)
+                });
+            }
+            updateFileExplorer();
+            updateStats();
+            logMessage('SYSTEM', '3 file dummy berhasil ditambahkan');
+        }
+        
+        function resetSystem() {
+            // Reset ke kondisi awal
+            initFiles();
+            encryptionKey = null;
+            isEncrypted = false;
+            
+            // Sembunyikan komponen
+            document.getElementById('ransomNoteContainer').style.display = 'none';
+            document.getElementById('decryptKeyContainer').style.display = 'none';
+            document.getElementById('encryptProgress').style.display = 'none';
+            
+            // Enable attack button
+            document.getElementById('attackBtn').disabled = false;
+            
+            logMessage('SYSTEM', 'System reset - Semua file kembali normal');
+        }
+        
+        function simulateRansomware() {
+            if (isEncrypted) {
+                logMessage('ERROR', 'Files already encrypted!');
+                return;
+            }
+            
+            // Generate random encryption key
+            encryptionKey = Array(32).fill(0).map(() => 
+                Math.random().toString(36).charAt(2)).join('');
+            
+            // Show progress bar
+            document.getElementById('encryptProgress').style.display = 'block';
+            document.getElementById('attackBtn').disabled = true;
+            
+            // Simulasi enkripsi progresif
+            let progress = 0;
+            const totalFiles = files.length;
+            const filesToEncrypt = files.filter(f => !f.encrypted);
+            const step = 100 / filesToEncrypt.length;
+            
+            logMessage('ATTACK', '🚨 RANSOMWARE ATTACK DETECTED! Enkripsi file...');
+            
+            const interval = setInterval(() => {
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    
+                    // Selesai, update UI
+                    document.getElementById('encryptProgress').style.display = 'none';
+                    document.getElementById('progressFill').style.width = '0%';
+                    
+                    // Tampilkan ransom note
+             
